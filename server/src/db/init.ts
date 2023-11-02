@@ -1,6 +1,6 @@
 import { Database } from "sqlite3";
 import { open } from "sqlite";
-import * as path from "path";
+import path from "path";
 import { unlink, existsSync } from "fs";
 
 const p = path.join(__dirname, "database.db");
