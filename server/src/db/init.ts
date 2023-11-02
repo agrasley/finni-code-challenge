@@ -3,7 +3,7 @@ import { open } from "sqlite";
 import path from "path";
 import { unlink, existsSync } from "fs";
 
-const p = path.join(__dirname, "database.db");
+const p = path.join(__dirname, "../../db/database.db");
 if (existsSync(p)) {
   unlink(p, (err) => {
     if (err) throw err;
