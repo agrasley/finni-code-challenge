@@ -9,6 +9,7 @@
   "dependencies": {
     "connect-sqlite3": "^0.9.13",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "http-errors": "^2.0.0",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@types/connect-sqlite3": "^0.9.4",
     "@types/cookie-parser": "^1.4.5",
+    "@types/cors": "^2.8.15",
     "@types/express-session": "^1.17.9",
     "@types/morgan": "^1.9.7",
     "@types/passport": "^1.0.14",

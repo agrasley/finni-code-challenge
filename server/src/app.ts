@@ -6,6 +6,7 @@ import connect from "connect-sqlite3";
 import path from "path";
 import passport from "passport";
 import logger from "morgan";
+import cors from "cors";
 import authRouter from "./routes/auth";
 
 declare global {
@@ -14,12 +15,14 @@ declare global {
     interface User {
       id: number;
       username: string;
+      firstName: string;
+      lastName: string;
     }
   }
 }
 
 const SQLiteStore = connect(session);
-const port = 3000;
+const port = 3030;
 
 const app = express();
 
@@ -27,6 +30,7 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(cors());
 app.use(
   session({
     secret: "my secret",
