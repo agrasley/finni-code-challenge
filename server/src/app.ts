@@ -6,6 +6,7 @@ import connect from "connect-sqlite3";
 import path from "path";
 import passport from "passport";
 import logger from "morgan";
+import authRouter from "./routes/auth";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -39,15 +40,13 @@ app.use(
 );
 app.use(passport.authenticate("session"));
 
+app.use("/", authRouter);
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`App listening on port ${port}`);
 });

@@ -1,3 +1,4 @@
+import express from "express";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import Provider from "../models/Provider";
@@ -25,3 +26,25 @@ passport.deserializeUser(function (user, cb) {
     return cb(null, user as any);
   });
 });
+
+const router = express.Router();
+
+router.post(
+  "/login/password",
+  passport.authenticate("local", {
+    successReturnToOrRedirect: "/",
+    failureRedirect: "/login",
+    failureMessage: true,
+  }),
+);
+
+router.post("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
+export default router;
