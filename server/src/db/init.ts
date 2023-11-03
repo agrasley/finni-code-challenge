@@ -1,7 +1,8 @@
 import { Database } from "sqlite3";
-import { open } from "sqlite";
+import { open, Database as DB } from "sqlite";
 import path from "path";
 import { unlink, existsSync } from "fs";
+import Provider from "../models/Provider";
 
 const p = path.join(__dirname, "../../db/database.db");
 if (existsSync(p)) {
@@ -10,12 +11,40 @@ if (existsSync(p)) {
   });
 }
 
+function createDemoProviders() {
+  return Promise.all([
+    new Provider({
+      id: 0,
+      username: "provider1",
+      firstName: "Jane",
+      lastName: "Doe",
+      password: "1234",
+    }).insertProvider(),
+    new Provider({
+      id: 0,
+      username: "provider2",
+      firstName: "John",
+      lastName: "Doe",
+      password: "1234",
+    }).insertProvider(),
+    new Provider({
+      id: 0,
+      username: "provider3",
+      firstName: "Jean",
+      lastName: "Doe",
+      password: "1234",
+    }).insertProvider(),
+  ]);
+}
+
 open({
   filename: p,
   driver: Database,
 }).then(async (db) => {
   await db.exec(`CREATE TABLE provider (
     id INTEGER PRIMARY KEY,
+    username TEXT UNIQUE,
+    password TEXT NOT NULL,
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL
   )`);
@@ -39,4 +68,6 @@ open({
     patient INTEGER,
     FOREIGN KEY(patient) REFERENCES patient(id)
   )`);
+
+  await createDemoProviders();
 });
