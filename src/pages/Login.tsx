@@ -1,14 +1,27 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
+import { useNavigate } from "react-router-dom";
 import { postData } from "../utils";
 import Typography from "@mui/material/Typography";
+import { User, userContext } from "../store/user";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { setUser } = useContext(userContext);
+  const navigate = useNavigate();
+
+  const onClick = async () => {
+    const user = await postData("/login/password", {
+      username,
+      password,
+    });
+    setUser(new User(user));
+    navigate("/");
+  };
 
   return (
     <Grid
@@ -48,15 +61,7 @@ export default function Login() {
               />
             </Grid>
             <Grid item>
-              <Button
-                onClick={() =>
-                  postData("/login/password", {
-                    username,
-                    password,
-                  })
-                }
-                variant="contained"
-              >
+              <Button onClick={onClick} variant="contained">
                 Log In
               </Button>
             </Grid>
