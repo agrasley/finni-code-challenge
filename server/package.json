@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.2.0",
+    "@types/connect-ensure-login": "^0.1.8",
+    "connect-ensure-login": "^0.1.1",
     "connect-sqlite3": "^0.9.13",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",

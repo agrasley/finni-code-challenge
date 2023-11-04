@@ -8,6 +8,7 @@ import passport from "passport";
 import logger from "morgan";
 import cors from "cors";
 import authRouter from "./routes/auth";
+import appRouter from "./routes";
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -45,6 +46,7 @@ app.use(
 app.use(passport.authenticate("session"));
 
 app.use("/", authRouter);
+app.use("/", appRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

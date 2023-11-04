@@ -54,7 +54,7 @@ export default class Patient {
   firstName: string;
   middleName?: string;
   lastName: string;
-  dob: Date;
+  dob: string;
   status: Status;
   providerId: number;
   addresses: Address[];
@@ -75,7 +75,7 @@ export default class Patient {
     firstName: string;
     middleName?: string;
     lastName: string;
-    dob: Date;
+    dob: string;
     status: Status;
     providerId: number;
     addresses: Address[];
@@ -117,7 +117,7 @@ export default class Patient {
           firstName: row.first_name,
           middleName: row.middle_name,
           lastName: row.last_name,
-          dob: new Date(row.dob),
+          dob: row.dob,
           status: row.status,
           providerId: row.provider,
           addresses: [
@@ -154,10 +154,12 @@ export default class Patient {
       firstName: faker.person.firstName(),
       middleName: Math.random() < 0.8 ? faker.person.middleName() : undefined,
       lastName: faker.person.lastName(),
-      dob: faker.date.birthdate({
-        min: 2,
-        max: 18,
-      }),
+      dob: faker.date
+        .birthdate({
+          min: 2,
+          max: 18,
+        })
+        .toLocaleDateString("en-US"),
       status: faker.helpers.arrayElement([
         "Inquiry",
         "Onboarding",
@@ -178,7 +180,7 @@ export default class Patient {
         this.firstName,
         this.middleName,
         this.lastName,
-        this.dob.toLocaleDateString("en-US"),
+        this.dob,
         this.status,
         this.providerId,
         JSON.stringify(this.customFields),
