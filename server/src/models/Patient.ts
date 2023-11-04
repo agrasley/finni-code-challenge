@@ -1,3 +1,4 @@
+import dbPromise from "../db";
 import { faker } from "@faker-js/faker";
 
 export type Status = "Inquiry" | "Onboarding" | "Active" | "Churned";
@@ -97,7 +98,7 @@ export default class Patient {
     return new Patient({
       id: 0,
       firstName: faker.person.firstName(),
-      middleName: Math.random() > 0.8 ? faker.person.middleName() : undefined,
+      middleName: Math.random() < 0.8 ? faker.person.middleName() : undefined,
       lastName: faker.person.lastName(),
       dob: faker.date.birthdate({
         min: 2,
@@ -112,5 +113,36 @@ export default class Patient {
       providerId,
       addresses,
     });
+  }
+
+  async insert() {
+    const db = await dbPromise;
+    const result = await db.run(
+      "INSERT INTO patient (first_name, middle_name, last_name, dob, status, provider) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        this.firstName,
+        this.middleName,
+        this.lastName,
+        this.dob.toLocaleDateString("en-US"),
+        this.status,
+        this.providerId,
+      ],
+    );
+    await Promise.all(
+      this.addresses.map((address) =>
+        db.run(
+          "INSERT INTO address (line_1, line_2, city, state, zip, patient) VALUES (?, ?, ?, ?, ?, ?)",
+          [
+            address.line1,
+            address.line2,
+            address.city,
+            address.state,
+            address.zip,
+            result.lastID,
+          ],
+        ),
+      ),
+    );
+    return result;
   }
 }

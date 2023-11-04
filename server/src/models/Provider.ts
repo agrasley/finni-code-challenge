@@ -56,7 +56,7 @@ export default class Provider {
     );
   }
 
-  async insertProvider() {
+  async insert() {
     const db = await dbPromise;
     return db.run(
       "INSERT INTO provider (username, first_name, last_name, password) VALUES (?, ?, ?, ?)",
