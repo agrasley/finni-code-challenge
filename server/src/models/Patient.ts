@@ -47,6 +47,8 @@ export class Address {
   }
 }
 
+export type CustomFields = Record<number, string>;
+
 export default class Patient {
   id: number;
   firstName: string;
@@ -56,6 +58,7 @@ export default class Patient {
   status: Status;
   providerId: number;
   addresses: Address[];
+  customFields: CustomFields;
 
   constructor({
     id,
@@ -66,6 +69,7 @@ export default class Patient {
     status,
     providerId,
     addresses,
+    customFields = {},
   }: {
     id: number;
     firstName: string;
@@ -75,6 +79,7 @@ export default class Patient {
     status: Status;
     providerId: number;
     addresses: Address[];
+    customFields?: CustomFields;
   }) {
     this.id = id;
     this.firstName = firstName;
@@ -84,9 +89,13 @@ export default class Patient {
     this.status = status;
     this.providerId = providerId;
     this.addresses = addresses;
+    this.customFields = customFields;
   }
 
-  static mock(providerId = 0): Patient {
+  static mock(
+    providerId: number,
+    mockCustomFields?: () => CustomFields,
+  ): Patient {
     const addresses = [Address.mock()];
     const randomAddress = Math.random();
     if (randomAddress > 0.8) {
@@ -112,13 +121,14 @@ export default class Patient {
       ]),
       providerId,
       addresses,
+      customFields: mockCustomFields?.(),
     });
   }
 
   async insert() {
     const db = await dbPromise;
     const result = await db.run(
-      "INSERT INTO patient (first_name, middle_name, last_name, dob, status, provider) VALUES (?, ?, ?, ?, ?, ?)",
+      "INSERT INTO patient (first_name, middle_name, last_name, dob, status, provider, custom_fields) VALUES (?, ?, ?, ?, ?, ?, json(?))",
       [
         this.firstName,
         this.middleName,
@@ -126,6 +136,7 @@ export default class Patient {
         this.dob.toLocaleDateString("en-US"),
         this.status,
         this.providerId,
+        JSON.stringify(this.customFields),
       ],
     );
     await Promise.all(

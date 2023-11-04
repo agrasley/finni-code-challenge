@@ -1,6 +1,10 @@
 import dbPromise from ".";
-import Patient from "../models/Patient";
+import Patient, {
+  CustomFields as PatientCustomFields,
+} from "../models/Patient";
 import Provider from "../models/Provider";
+import CustomField from "../models/CustomField";
+import { faker } from "@faker-js/faker";
 
 function createDemoProviders() {
   return Promise.all([
@@ -28,10 +32,48 @@ function createDemoProviders() {
   ]);
 }
 
-function createDemoPatients(providerId: number) {
+function createDemoCustomFields() {
+  return Promise.all([
+    new CustomField({
+      id: 0,
+      name: "Insurance",
+      isRequired: true,
+      providerId: 1,
+    }).insert(),
+    new CustomField({
+      id: 0,
+      name: "Number of Visits",
+      defaultValue: "0",
+      isRequired: true,
+      providerId: 1,
+    }).insert(),
+    new CustomField({
+      id: 0,
+      name: "Notes",
+      providerId: 1,
+    }).insert(),
+  ]);
+}
+
+function generateMockCustomFieldData(ids: number[]) {
+  return () => {
+    const maybeNotes =
+      Math.random() < 0.8 ? { [ids[2]]: faker.lorem.paragraph() } : {};
+    return {
+      [ids[0]]: faker.company.name(),
+      [ids[1]]: `${Math.round(Math.random() * 10)}`,
+      ...maybeNotes,
+    };
+  };
+}
+
+function createDemoPatients(
+  providerId: number,
+  mockCustomFields?: () => PatientCustomFields,
+) {
   const results = [];
   for (let i = 0; i < 100 + Math.round(Math.random() * 200); i += 1) {
-    results.push(Patient.mock(providerId).insert());
+    results.push(Patient.mock(providerId, mockCustomFields).insert());
   }
   return Promise.all(results);
 }
@@ -40,6 +82,7 @@ dbPromise.then(async (db) => {
   await db.exec("DROP TABLE IF EXISTS provider");
   await db.exec("DROP TABLE IF EXISTS patient");
   await db.exec("DROP TABLE IF EXISTS address");
+  await db.exec("DROP TABLE IF EXISTS custom_field");
 
   await db.exec(`CREATE TABLE IF NOT EXISTS provider (
     id INTEGER PRIMARY KEY,
@@ -56,6 +99,7 @@ dbPromise.then(async (db) => {
     dob TEXT NOT NULL,
     status TEXT NOT NULL,
     provider INTEGER,
+    custom_fields JSON NOT NULL,
     FOREIGN KEY(provider) REFERENCES provider(id)
   )`);
   await db.exec(`CREATE TABLE IF NOT EXISTS address (
@@ -68,8 +112,20 @@ dbPromise.then(async (db) => {
     patient INTEGER,
     FOREIGN KEY(patient) REFERENCES patient(id)
   )`);
+  await db.exec(`CREATE TABLE IF NOT EXISTS custom_field (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    is_required INTEGER NOT NULL,
+    default_value TEXT,
+    provider INTEGER,
+    FOREIGN KEY(provider) REFERENCES provider(id)
+  )`);
 
   await createDemoProviders();
-  await createDemoPatients(1);
+  const fieldResults = await createDemoCustomFields();
+  await createDemoPatients(
+    1,
+    generateMockCustomFieldData(fieldResults.map(({ lastID = 0 }) => lastID)),
+  );
   await createDemoPatients(2);
 });
