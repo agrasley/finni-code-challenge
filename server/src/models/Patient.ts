@@ -92,6 +92,51 @@ export default class Patient {
     this.customFields = customFields;
   }
 
+  static async getByProvider(providerId: number) {
+    const db = await dbPromise;
+    const patients: Record<number, Patient> = {};
+    const rows = await db.all(
+      "SELECT * FROM patient LEFT JOIN address ON patient.id = address.patient WHERE provider = ?",
+      providerId,
+    );
+    rows.forEach((row) => {
+      if (patients[row.id]) {
+        patients[row.id].addresses.push(
+          new Address({
+            id: row.addressId,
+            line1: row.line_1,
+            line2: row.line_2,
+            city: row.city,
+            state: row.state,
+            zip: row.zip,
+          }),
+        );
+      } else {
+        patients[row.id] = new Patient({
+          id: row.id,
+          firstName: row.first_name,
+          middleName: row.middle_name,
+          lastName: row.last_name,
+          dob: new Date(row.dob),
+          status: row.status,
+          providerId: row.provider,
+          addresses: [
+            new Address({
+              id: row.addressId,
+              line1: row.line_1,
+              line2: row.line_2,
+              city: row.city,
+              state: row.state,
+              zip: row.zip,
+            }),
+          ],
+          customFields: JSON.parse(row.custom_fields),
+        });
+      }
+    });
+    return Object.values(patients);
+  }
+
   static mock(
     providerId: number,
     mockCustomFields?: () => CustomFields,
