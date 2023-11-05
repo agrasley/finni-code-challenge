@@ -6,6 +6,9 @@ import { requireLogin } from "./utils";
 import PatientDashboard, {
   patientDashboardLoader,
 } from "./pages/PatientDashboard";
+import Root from "./pages/Root";
+import Onboarding from "./pages/Onboarding";
+import Fields from "./pages/Fields";
 
 const theme = createTheme({
   palette: {
@@ -19,8 +22,22 @@ const theme = createTheme({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <PatientDashboard />,
-    loader: requireLogin(patientDashboardLoader),
+    element: <Root />,
+    children: [
+      {
+        path: "",
+        element: <PatientDashboard />,
+        loader: requireLogin(patientDashboardLoader),
+      },
+      {
+        path: "onboarding",
+        element: <Onboarding />,
+      },
+      {
+        path: "fields",
+        element: <Fields />,
+      },
+    ],
   },
   {
     path: "/login",
