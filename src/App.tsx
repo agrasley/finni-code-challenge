@@ -2,8 +2,10 @@ import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Login, { loginAction } from "./pages/Login";
-import PatientDashboard from "./pages/PatientDashboard";
-import RequireAuth from "./components/RequireAuth";
+import { requireLogin } from "./utils";
+import PatientDashboard, {
+  patientDashboardLoader,
+} from "./pages/PatientDashboard";
 
 const theme = createTheme({
   palette: {
@@ -17,11 +19,8 @@ const theme = createTheme({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: (
-      <RequireAuth>
-        <PatientDashboard />
-      </RequireAuth>
-    ),
+    element: <PatientDashboard />,
+    loader: requireLogin(patientDashboardLoader),
   },
   {
     path: "/login",

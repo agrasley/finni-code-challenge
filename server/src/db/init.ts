@@ -13,21 +13,21 @@ function createDemoProviders() {
       username: "provider1",
       firstName: "Jane",
       lastName: "Doe",
-      password: "1234",
+      password: "finnihealth",
     }).insert(),
     new Provider({
       id: 0,
       username: "provider2",
       firstName: "John",
       lastName: "Doe",
-      password: "1234",
+      password: "finnihealth",
     }).insert(),
     new Provider({
       id: 0,
       username: "provider3",
       firstName: "Jean",
       lastName: "Doe",
-      password: "1234",
+      password: "finnihealth",
     }).insert(),
   ]);
 }
