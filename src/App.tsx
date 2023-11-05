@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import Login from "./pages/Login";
+import Login, { loginAction } from "./pages/Login";
 import PatientDashboard from "./pages/PatientDashboard";
-import { User, userContext } from "./store/user";
+import RequireAuth from "./components/RequireAuth";
 
 const theme = createTheme({
   palette: {
@@ -17,27 +17,23 @@ const theme = createTheme({
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <PatientDashboard />,
+    element: (
+      <RequireAuth>
+        <PatientDashboard />
+      </RequireAuth>
+    ),
   },
   {
     path: "/login",
     element: <Login />,
+    action: loginAction,
   },
 ]);
 
 function App() {
-  const [user, setUser] = useState<User | null>(null);
-
   return (
     <ThemeProvider theme={theme}>
-      <userContext.Provider
-        value={{
-          user,
-          setUser,
-        }}
-      >
-        <RouterProvider router={router} />
-      </userContext.Provider>
+      <RouterProvider router={router} />
     </ThemeProvider>
   );
 }

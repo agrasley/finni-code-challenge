@@ -1,28 +1,20 @@
-import React, { useContext, useState } from "react";
+import React from "react";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
-import { useNavigate } from "react-router-dom";
-import { postData } from "../utils";
+import { Form, ActionFunctionArgs, redirect } from "react-router-dom";
 import Typography from "@mui/material/Typography";
-import { User, userContext } from "../store/user";
+import { postData } from "../utils";
+
+export async function loginAction({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const user = await postData("/login/password", Object.fromEntries(formData));
+  window.localStorage.setItem("user", JSON.stringify(user));
+  return redirect(`/`);
+}
 
 export default function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const { setUser } = useContext(userContext);
-  const navigate = useNavigate();
-
-  const onClick = async () => {
-    const user = await postData("/login/password", {
-      username,
-      password,
-    });
-    setUser(new User(user));
-    navigate("/");
-  };
-
   return (
     <Grid
       container
@@ -32,40 +24,42 @@ export default function Login() {
     >
       <Grid item>
         <Paper elevation={3} sx={{ width: 500, height: 500 }}>
-          <Grid
-            container
-            direction="column"
-            alignItems="center"
-            spacing={3}
-            justifyContent="center"
-            sx={{ height: 1 }}
-          >
-            <Grid item>
-              <Typography variant="h3" color="primary">
-                Welcome!
-              </Typography>
+          <Form method="post" id="login-form">
+            <Grid
+              container
+              direction="column"
+              alignItems="center"
+              spacing={3}
+              justifyContent="center"
+              sx={{ height: 1 }}
+            >
+              <Grid item>
+                <Typography variant="h3" color="primary">
+                  Welcome!
+                </Typography>
+              </Grid>
+              <Grid item>
+                <TextField
+                  label="Username"
+                  variant="outlined"
+                  name="username"
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  label="Password"
+                  variant="outlined"
+                  type="password"
+                  name="password"
+                />
+              </Grid>
+              <Grid item>
+                <Button type="submit" variant="contained">
+                  Log In
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <TextField
-                label="Username"
-                variant="outlined"
-                onChange={(e) => setUsername(e.target.value)}
-              />
-            </Grid>
-            <Grid item>
-              <TextField
-                label="Password"
-                variant="outlined"
-                type="password"
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </Grid>
-            <Grid item>
-              <Button onClick={onClick} variant="contained">
-                Log In
-              </Button>
-            </Grid>
-          </Grid>
+          </Form>
         </Paper>
       </Grid>
     </Grid>
