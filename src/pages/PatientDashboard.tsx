@@ -4,18 +4,16 @@ import {
   GridColDef,
   GridPreProcessEditCellProps,
   GridRenderCellParams,
-  GridRenderEditCellParams,
   GridValueGetterParams,
   GridValueSetterParams,
-  useGridApiContext,
 } from "@mui/x-data-grid";
-import Patient from "../models/Patient";
+import Patient, { Address } from "../models/Patient";
 import { getAge, getData, putData } from "../utils";
 import { useLoaderData } from "react-router-dom";
-import FormControl from "@mui/material/FormControl";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
 import Chip, { ChipProps } from "@mui/material/Chip";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
 
 export async function patientDashboardLoader() {
   const [serverPatients, customFields] = await Promise.all([
@@ -40,36 +38,23 @@ function DisplayStatus({ value }: GridRenderCellParams) {
   return <Chip color={color} label={value} />;
 }
 
-function EditStatus({ id, value, field, hasFocus }: GridRenderEditCellParams) {
-  const apiRef = useGridApiContext();
-  const ref = React.useRef<HTMLInputElement>();
-
-  React.useLayoutEffect(() => {
-    if (hasFocus && ref.current) {
-      ref.current.focus();
-    }
-  }, [hasFocus]);
-
-  const handleValueChange = (event: SelectChangeEvent) => {
-    const newValue = event.target.value; // The new value entered by the user
-    apiRef.current.setEditCellValue({ id, field, value: newValue });
-  };
-
+function DisplayAddress({ address }: { address: Address }) {
+  const line2 = address.line2 ? `${address.line2} ` : "";
+  const addressString = `${address.line1} ${line2}${address.city}, ${address.state} ${address.zip}`;
   return (
-    <FormControl fullWidth>
-      <Select
-        ref={ref}
-        id="status-select"
-        value={value}
-        label="Status"
-        onChange={handleValueChange}
-      >
-        <MenuItem value="Inquiry">Inquiry</MenuItem>
-        <MenuItem value="Onboarding">Onboarding</MenuItem>
-        <MenuItem value="Active">Active</MenuItem>
-        <MenuItem value="Churned">Churned</MenuItem>
-      </Select>
-    </FormControl>
+    <ListItem>
+      <ListItemText primary={addressString} />
+    </ListItem>
+  );
+}
+
+function DisplayAddresses({ value: addresses }: GridRenderCellParams) {
+  return (
+    <List dense>
+      {addresses.map((address: Address) => (
+        <DisplayAddress key={address.id} address={address} />
+      ))}
+    </List>
   );
 }
 
@@ -106,14 +91,13 @@ const defaultColumns: GridColDef[] = [
     width: 125,
     editable: true,
     renderCell: (params: GridRenderCellParams) => <DisplayStatus {...params} />,
-    renderEditCell: (params: GridRenderEditCellParams) => (
-      <EditStatus {...params} />
-    ),
+    type: "singleSelect",
+    valueOptions: ["Inquiry", "Onboarding", "Active", "Churned"],
   },
   {
     field: "dob",
     headerName: "Date of Birth",
-    width: 150,
+    width: 110,
     editable: true,
     type: "date",
     valueGetter: (params: GridValueGetterParams) => new Date(params.value),
@@ -125,21 +109,25 @@ const defaultColumns: GridColDef[] = [
   {
     field: "age",
     headerName: "Age",
-    width: 50,
+    width: 75,
     type: "number",
     valueGetter: (params: GridValueGetterParams) => getAge(params.row.dob),
   },
-  // {
-  //   field: "addresses",
-  //   headerName: "Addresses",
-  //   width: 150,
-  // },
+  {
+    field: "addresses",
+    headerName: "Addresses",
+    width: 200,
+    renderCell: (params: GridRenderCellParams) => (
+      <DisplayAddresses {...params} />
+    ),
+  },
 ];
 
 export default function PatientDashboard() {
   const { patients }: { patients: Patient[] } = useLoaderData() as any;
   return (
     <DataGrid
+      getRowHeight={() => "auto"}
       processRowUpdate={async (updatedRow) => {
         await putData(`/patients/${updatedRow.id}`, updatedRow);
         return updatedRow;
