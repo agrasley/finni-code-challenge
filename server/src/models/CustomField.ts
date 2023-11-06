@@ -33,6 +33,12 @@ export default class CustomField {
     this.type = type;
   }
 
+  static async getById(id: number) {
+    const db = await dbPromise;
+    const row = await db.get("SELECT * FROM custom_field WHERE id = ?", id);
+    return new CustomField(row);
+  }
+
   static async getByProvider(providerId: number) {
     const db = await dbPromise;
     const rows = await db.all(
@@ -73,5 +79,10 @@ export default class CustomField {
         this.type,
       ],
     );
+  }
+
+  async delete() {
+    const db = await dbPromise;
+    return db.run("DELETE FROM custom_field WHERE id = ?", this.id);
   }
 }

@@ -45,4 +45,16 @@ router.put("/customfields/:id", loggedIn, async function (req, res) {
   res.json({ success: true });
 });
 
+router.delete("/customfields/:id", loggedIn, async function (req, res) {
+  const { id } = req.params;
+  const customField = await CustomField.getById(Number(id));
+  if (customField.providerId !== req.user!.id) {
+    return res
+      .status(403)
+      .send("You do not have permission to delete that field");
+  }
+  await customField.delete();
+  res.json({ success: true });
+});
+
 export default router;
