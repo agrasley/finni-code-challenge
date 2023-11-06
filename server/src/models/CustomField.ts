@@ -52,6 +52,15 @@ export default class CustomField {
     );
   }
 
+  async update() {
+    const db = await dbPromise;
+    await db.run("UPDATE custom_field SET name = ?, type = ? WHERE id = ?", [
+      this.name,
+      this.type,
+      this.id,
+    ]);
+  }
+
   async insert() {
     const db = await dbPromise;
     return db.run(

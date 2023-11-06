@@ -26,4 +26,14 @@ router.get("/customfields", loggedIn, async function (req, res) {
   res.json(customFields);
 });
 
+router.put("/customfields/:id", loggedIn, async function (req, res) {
+  const { id } = req.params;
+  if (id !== `${req.body.id}`) {
+    return res.status(400).send("Id of body and param mismatch");
+  }
+  const customField = new CustomField(req.body);
+  await customField.update();
+  res.json({ success: true });
+});
+
 export default router;
