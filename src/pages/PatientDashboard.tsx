@@ -136,8 +136,16 @@ export default function PatientDashboard() {
     headerName: customField.name,
     width: 150,
     type: customField.type,
+    editable: true,
     valueGetter: (params: GridValueGetterParams) =>
       params.row.customFields[customField.id],
+    valueSetter: (params: GridValueSetterParams) => ({
+      ...params.row,
+      customFields: {
+        ...params.row.customFields,
+        [customField.id]: params.value,
+      },
+    }),
   }));
   return (
     <DataGrid
