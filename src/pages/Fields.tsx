@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { getData, postData, putData } from "../utils";
+import { deleteData, getData, postData, putData } from "../utils";
 import {
   DataGrid,
+  GridActionsCellItem,
   GridColDef,
   GridToolbarContainer,
   GridValueGetterParams,
@@ -11,6 +12,7 @@ import CustomField from "../models/CustomField";
 import { useLoaderData } from "react-router-dom";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
 import NewFieldDialog from "../components/NewFieldDialog";
 
 export async function customFieldsLoader() {
@@ -36,41 +38,6 @@ function EditToolbar({ setDialogOpen }: EditToolbarProps) {
   );
 }
 
-const columns: GridColDef[] = [
-  {
-    field: "name",
-    headerName: "Field Name",
-    width: 150,
-    editable: true,
-  },
-  {
-    field: "type",
-    headerName: "Type",
-    width: 150,
-    editable: true,
-    type: "singleSelect",
-    valueOptions: ["Text", "Number", "Date"],
-    valueGetter: ({ value }: GridValueGetterParams) => {
-      if (value === "date") {
-        return "Date";
-      } else if (value === "number") {
-        return "Number";
-      } else {
-        return "Text";
-      }
-    },
-    valueSetter: ({ value, row }: GridValueSetterParams) => {
-      let newValue = "string";
-      if (value === "Date") {
-        newValue = "date";
-      } else if (value === "Number") {
-        newValue = "number";
-      }
-      return { ...row, type: newValue };
-    },
-  },
-];
-
 export default function Fields() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { customFields }: { customFields: CustomField[] } =
@@ -81,6 +48,59 @@ export default function Fields() {
     setRows((rows) => [...rows, { ...customField, id }]);
     setDialogOpen(false);
   };
+
+  const handleDelete = async (id: number) => {
+    await deleteData(`/customfields/${id}`);
+    setRows((rows) => rows.filter((row) => row.id !== id));
+  };
+
+  const columns: GridColDef[] = [
+    {
+      field: "name",
+      headerName: "Field Name",
+      width: 150,
+      editable: true,
+    },
+    {
+      field: "type",
+      headerName: "Type",
+      width: 150,
+      editable: true,
+      type: "singleSelect",
+      valueOptions: ["Text", "Number", "Date"],
+      valueGetter: ({ value }: GridValueGetterParams) => {
+        if (value === "date") {
+          return "Date";
+        } else if (value === "number") {
+          return "Number";
+        } else {
+          return "Text";
+        }
+      },
+      valueSetter: ({ value, row }: GridValueSetterParams) => {
+        let newValue = "string";
+        if (value === "Date") {
+          newValue = "date";
+        } else if (value === "Number") {
+          newValue = "number";
+        }
+        return { ...row, type: newValue };
+      },
+    },
+    {
+      field: "actions",
+      type: "actions",
+      width: 80,
+      getActions: (params) => [
+        <GridActionsCellItem
+          key={1}
+          icon={<DeleteIcon />}
+          label="Delete"
+          onClick={() => handleDelete(params.id as unknown as number)}
+        />,
+      ],
+    },
+  ];
 
   return (
     <>

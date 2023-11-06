@@ -36,7 +36,14 @@ export default class CustomField {
   static async getById(id: number) {
     const db = await dbPromise;
     const row = await db.get("SELECT * FROM custom_field WHERE id = ?", id);
-    return new CustomField(row);
+    return new CustomField({
+      id: row.id,
+      name: row.name,
+      isRequired: row.is_required,
+      defaultValue: row.default_value,
+      providerId: row.provider,
+      type: row.type,
+    });
   }
 
   static async getByProvider(providerId: number) {
@@ -83,6 +90,10 @@ export default class CustomField {
 
   async delete() {
     const db = await dbPromise;
+    db.run(
+      `UPDATE patient SET custom_fields = json_remove(custom_fields, '$.${this.id}') WHERE provider = ?`,
+      [this.providerId],
+    );
     return db.run("DELETE FROM custom_field WHERE id = ?", this.id);
   }
 }
