@@ -5,10 +5,12 @@ import {
   GridPreProcessEditCellProps,
   GridRenderCellParams,
   GridRenderEditCellParams,
+  GridValueGetterParams,
+  GridValueSetterParams,
   useGridApiContext,
 } from "@mui/x-data-grid";
 import Patient from "../models/Patient";
-import { getData, putData } from "../utils";
+import { getAge, getData, putData } from "../utils";
 import { useLoaderData } from "react-router-dom";
 import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
@@ -101,19 +103,32 @@ const defaultColumns: GridColDef[] = [
   {
     field: "status",
     headerName: "Status",
-    width: 150,
+    width: 125,
     editable: true,
     renderCell: (params: GridRenderCellParams) => <DisplayStatus {...params} />,
     renderEditCell: (params: GridRenderEditCellParams) => (
       <EditStatus {...params} />
     ),
   },
-  // {
-  //   field: "dob",
-  //   headerName: "Date of Birth",
-  //   width: 150,
-  //   editable: true,
-  // },
+  {
+    field: "dob",
+    headerName: "Date of Birth",
+    width: 150,
+    editable: true,
+    type: "date",
+    valueGetter: (params: GridValueGetterParams) => new Date(params.value),
+    valueSetter: (params: GridValueSetterParams) => ({
+      ...params.row,
+      dob: params.value.toLocaleDateString("en-US"),
+    }),
+  },
+  {
+    field: "age",
+    headerName: "Age",
+    width: 50,
+    type: "number",
+    valueGetter: (params: GridValueGetterParams) => getAge(params.row.dob),
+  },
   // {
   //   field: "addresses",
   //   headerName: "Addresses",
