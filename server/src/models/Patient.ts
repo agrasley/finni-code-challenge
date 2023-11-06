@@ -47,7 +47,7 @@ export class Address {
   }
 }
 
-export type CustomFields = Record<number, string>;
+export type CustomFields = Record<number, string | number>;
 
 export default class Patient {
   id: number;

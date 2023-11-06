@@ -43,6 +43,7 @@ function createDemoCustomFields() {
     new CustomField({
       id: 0,
       name: "Number of Visits",
+      type: "number",
       defaultValue: "0",
       isRequired: true,
       providerId: 1,
@@ -61,7 +62,7 @@ function generateMockCustomFieldData(ids: number[]) {
       Math.random() < 0.8 ? { [ids[2]]: faker.lorem.paragraph() } : {};
     return {
       [ids[0]]: faker.company.name(),
-      [ids[1]]: `${Math.round(Math.random() * 10)}`,
+      [ids[1]]: Math.round(Math.random() * 10),
       ...maybeNotes,
     };
   };
@@ -115,6 +116,7 @@ dbPromise.then(async (db) => {
   await db.exec(`CREATE TABLE IF NOT EXISTS custom_field (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
+    type TEXT,
     is_required INTEGER NOT NULL,
     default_value TEXT,
     provider INTEGER,

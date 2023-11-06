@@ -14,6 +14,7 @@ import Chip, { ChipProps } from "@mui/material/Chip";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import CustomField from "../models/CustomField";
 
 export async function patientDashboardLoader() {
   const [serverPatients, customFields] = await Promise.all([
@@ -23,6 +24,7 @@ export async function patientDashboardLoader() {
   const patients = serverPatients.map(
     (serverPatient: Patient) => new Patient(serverPatient),
   );
+  console.log(patients);
   return { patients, customFields };
 }
 
@@ -124,7 +126,19 @@ const defaultColumns: GridColDef[] = [
 ];
 
 export default function PatientDashboard() {
-  const { patients }: { patients: Patient[] } = useLoaderData() as any;
+  const {
+    patients,
+    customFields,
+  }: { patients: Patient[]; customFields: CustomField[] } =
+    useLoaderData() as any;
+  const customColumns = customFields.map((customField) => ({
+    field: customField.name,
+    headerName: customField.name,
+    width: 150,
+    type: customField.type,
+    valueGetter: (params: GridValueGetterParams) =>
+      params.row.customFields[customField.id],
+  }));
   return (
     <DataGrid
       getRowHeight={() => "auto"}
@@ -133,7 +147,7 @@ export default function PatientDashboard() {
         return updatedRow;
       }}
       rows={patients}
-      columns={defaultColumns}
+      columns={[...defaultColumns, ...customColumns]}
     />
   );
 }
