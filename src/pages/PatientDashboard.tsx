@@ -24,7 +24,6 @@ export async function patientDashboardLoader() {
   const patients = serverPatients.map(
     (serverPatient: Patient) => new Patient(serverPatient),
   );
-  console.log(patients);
   return { patients, customFields };
 }
 

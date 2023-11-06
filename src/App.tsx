@@ -8,7 +8,7 @@ import PatientDashboard, {
 } from "./pages/PatientDashboard";
 import Root from "./pages/Root";
 import Onboarding from "./pages/Onboarding";
-import Fields from "./pages/Fields";
+import Fields, { customFieldsLoader } from "./pages/Fields";
 
 const theme = createTheme({
   palette: {
@@ -36,6 +36,7 @@ const router = createBrowserRouter([
       {
         path: "fields",
         element: <Fields />,
+        loader: requireLogin(customFieldsLoader),
       },
     ],
   },
