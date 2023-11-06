@@ -6,7 +6,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
-import CustomField from "../models/CustomField";
+import CustomField, { CustomFieldType } from "../models/CustomField";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
@@ -22,7 +22,7 @@ export default function NewFieldDialog({
   handleSubmit: (customField: CustomField) => void;
 }) {
   const [name, setName] = useState("");
-  const [type, setType] = useState("string");
+  const [type, setType] = useState<CustomFieldType>("string");
 
   return (
     <Dialog open={open} onClose={handleClose}>
@@ -46,7 +46,7 @@ export default function NewFieldDialog({
             id="type-select"
             value={type}
             label="Type"
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e) => setType(e.target.value as CustomFieldType)}
           >
             <MenuItem value="string">Text</MenuItem>
             <MenuItem value="number">Number</MenuItem>
@@ -60,7 +60,7 @@ export default function NewFieldDialog({
         </Button>
         <Button
           variant="contained"
-          onClick={() => handleSubmit({ id: 0, name })}
+          onClick={() => handleSubmit({ id: 0, name, type })}
         >
           Submit
         </Button>

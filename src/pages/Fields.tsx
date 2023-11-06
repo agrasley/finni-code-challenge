@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getData, putData } from "../utils";
+import { getData, postData, putData } from "../utils";
 import {
   DataGrid,
   GridColDef,
@@ -75,10 +75,17 @@ export default function Fields() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { customFields }: { customFields: CustomField[] } =
     useLoaderData() as any;
+  const [rows, setRows] = useState(customFields);
+  const handleSubmit = async (customField: CustomField) => {
+    const { id } = await postData("/customfields", customField);
+    setRows((rows) => [...rows, { ...customField, id }]);
+    setDialogOpen(false);
+  };
+
   return (
     <>
       <DataGrid
-        rows={customFields}
+        rows={rows}
         columns={columns}
         processRowUpdate={async (updatedRow) => {
           await putData(`/customfields/${updatedRow.id}`, updatedRow);
@@ -94,7 +101,7 @@ export default function Fields() {
       <NewFieldDialog
         open={dialogOpen}
         handleClose={() => setDialogOpen(false)}
-        handleSubmit={() => setDialogOpen(false)}
+        handleSubmit={handleSubmit}
       />
     </>
   );

@@ -26,6 +26,15 @@ router.get("/customfields", loggedIn, async function (req, res) {
   res.json(customFields);
 });
 
+router.post("/customfields", loggedIn, async function (req, res) {
+  const customField = new CustomField({
+    ...req.body,
+    providerId: req.user!.id,
+  });
+  const result = await customField.insert();
+  res.json({ id: result.lastID });
+});
+
 router.put("/customfields/:id", loggedIn, async function (req, res) {
   const { id } = req.params;
   if (id !== `${req.body.id}`) {
