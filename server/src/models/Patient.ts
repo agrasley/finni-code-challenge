@@ -158,6 +158,7 @@ export default class Patient {
         .birthdate({
           min: 2,
           max: 18,
+          mode: "age",
         })
         .toLocaleDateString("en-US"),
       status: faker.helpers.arrayElement([
