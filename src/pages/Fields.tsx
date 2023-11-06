@@ -1,6 +1,6 @@
 import React from "react";
 import { getData } from "../utils";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
 import CustomField from "../models/CustomField";
 import { useLoaderData } from "react-router-dom";
 
@@ -14,6 +14,22 @@ const columns: GridColDef[] = [
     field: "name",
     headerName: "Field Name",
     width: 150,
+  },
+  {
+    field: "type",
+    headerName: "Type",
+    width: 150,
+    type: "singleSelect",
+    valueOptions: ["Text", "Number", "Date"],
+    valueGetter: ({ value }: GridValueGetterParams) => {
+      if (value === "date") {
+        return "Date";
+      } else if (value === "number") {
+        return "Number";
+      } else {
+        return "Text";
+      }
+    },
   },
 ];
 
