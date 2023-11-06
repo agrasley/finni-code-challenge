@@ -33,6 +33,7 @@ export async function getData(url = "/") {
   return response.json();
 }
 export const postData = createFetch("POST");
+export const putData = createFetch("PUT");
 
 export function getUser() {
   return JSON.parse(window.localStorage.getItem("user") || "null");

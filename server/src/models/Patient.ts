@@ -172,6 +172,22 @@ export default class Patient {
     });
   }
 
+  async update() {
+    const db = await dbPromise;
+    await db.run(
+      "UPDATE patient SET first_name = ?, middle_name = ?, last_name = ?, dob = ?, status = ?, custom_fields = json(?) WHERE id = ?",
+      [
+        this.firstName,
+        this.middleName,
+        this.lastName,
+        this.dob,
+        this.status,
+        JSON.stringify(this.customFields),
+        this.id,
+      ],
+    );
+  }
+
   async insert() {
     const db = await dbPromise;
     const result = await db.run(
