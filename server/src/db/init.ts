@@ -101,6 +101,7 @@ dbPromise.then(async (db) => {
     status TEXT NOT NULL,
     provider INTEGER,
     custom_fields JSON NOT NULL,
+    is_deleted INTEGER NOT NULL,
     FOREIGN KEY(provider) REFERENCES provider(id)
   )`);
   await db.exec(`CREATE TABLE IF NOT EXISTS address (

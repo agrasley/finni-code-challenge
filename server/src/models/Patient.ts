@@ -59,6 +59,7 @@ export default class Patient {
   providerId: number;
   addresses: Address[];
   customFields: CustomFields;
+  isDeleted: boolean;
 
   constructor({
     id,
@@ -70,6 +71,7 @@ export default class Patient {
     providerId,
     addresses,
     customFields = {},
+    isDeleted = false,
   }: {
     id: number;
     firstName: string;
@@ -80,6 +82,7 @@ export default class Patient {
     providerId: number;
     addresses: Address[];
     customFields?: CustomFields;
+    isDeleted?: boolean;
   }) {
     this.id = id;
     this.firstName = firstName;
@@ -90,13 +93,29 @@ export default class Patient {
     this.providerId = providerId;
     this.addresses = addresses;
     this.customFields = customFields;
+    this.isDeleted = isDeleted;
+  }
+
+  static async getById(id: number) {
+    const db = await dbPromise;
+    const row = await db.get("SELECT * FROM patient WHERE id = ?", id);
+    return new Patient({
+      id: row.id,
+      firstName: row.first_name,
+      middleName: row.middle_name,
+      lastName: row.last_name,
+      dob: row.dob,
+      status: row.status,
+      providerId: row.provider,
+      addresses: [], // okay for a demo
+    });
   }
 
   static async getByProvider(providerId: number) {
     const db = await dbPromise;
     const patients: Record<number, Patient> = {};
     const rows = await db.all(
-      "SELECT * FROM patient LEFT JOIN address ON patient.id = address.patient WHERE provider = ?",
+      "SELECT * FROM patient LEFT JOIN address ON patient.id = address.patient WHERE provider = ? AND is_deleted != 1",
       providerId,
     );
     rows.forEach((row) => {
@@ -192,7 +211,7 @@ export default class Patient {
   async insert() {
     const db = await dbPromise;
     const result = await db.run(
-      "INSERT INTO patient (first_name, middle_name, last_name, dob, status, provider, custom_fields) VALUES (?, ?, ?, ?, ?, ?, json(?))",
+      "INSERT INTO patient (first_name, middle_name, last_name, dob, status, provider, custom_fields, is_deleted) VALUES (?, ?, ?, ?, ?, ?, json(?), 0)",
       [
         this.firstName,
         this.middleName,
@@ -219,5 +238,10 @@ export default class Patient {
       ),
     );
     return result;
+  }
+
+  async delete() {
+    const db = await dbPromise;
+    await db.run("UPDATE patient SET is_deleted = 1 WHERE id = ?", this.id);
   }
 }

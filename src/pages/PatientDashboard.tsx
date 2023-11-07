@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   DataGrid,
+  GridActionsCellItem,
+  GridCellEditStartParams,
   GridColDef,
   GridPreProcessEditCellProps,
   GridRenderCellParams,
@@ -8,13 +10,16 @@ import {
   GridValueSetterParams,
 } from "@mui/x-data-grid";
 import Patient, { Address } from "../models/Patient";
-import { getAge, getData, putData } from "../utils";
+import { deleteData, getAge, getData, putData } from "../utils";
 import { useLoaderData } from "react-router-dom";
 import Chip, { ChipProps } from "@mui/material/Chip";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
 import CustomField from "../models/CustomField";
+import EditIcon from "@mui/icons-material/Edit";
+import AddressEditDialog from "../components/AddressEditDialog";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export async function patientDashboardLoader() {
   const [serverPatients, customFields] = await Promise.all([
@@ -118,18 +123,23 @@ const defaultColumns: GridColDef[] = [
     field: "addresses",
     headerName: "Addresses",
     width: 200,
+    editable: true,
     renderCell: (params: GridRenderCellParams) => (
       <DisplayAddresses {...params} />
     ),
+    renderEditCell: () => <EditIcon />,
   },
 ];
 
 export default function PatientDashboard() {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const {
     patients,
     customFields,
   }: { patients: Patient[]; customFields: CustomField[] } =
     useLoaderData() as any;
+  const [rows, setRows] = useState(patients);
   const customColumns = customFields.map((customField) => ({
     field: customField.name,
     headerName: customField.name,
@@ -146,15 +156,54 @@ export default function PatientDashboard() {
       },
     }),
   }));
+
+  const handleDelete = async (id: number) => {
+    await deleteData(`/patients/${id}`);
+    setRows((rows) => rows.filter((row) => row.id !== id));
+  };
+
+  console.log("Rendering addresses", addresses);
   return (
-    <DataGrid
-      getRowHeight={() => "auto"}
-      processRowUpdate={async (updatedRow) => {
-        await putData(`/patients/${updatedRow.id}`, updatedRow);
-        return updatedRow;
-      }}
-      rows={patients}
-      columns={[...defaultColumns, ...customColumns]}
-    />
+    <>
+      <DataGrid
+        getRowHeight={() => "auto"}
+        processRowUpdate={async (updatedRow) => {
+          await putData(`/patients/${updatedRow.id}`, updatedRow);
+          return updatedRow;
+        }}
+        rows={rows}
+        columns={[
+          ...defaultColumns,
+          ...customColumns,
+
+          {
+            field: "actions",
+            type: "actions",
+            width: 80,
+            getActions: (params) => [
+              <GridActionsCellItem
+                key={1}
+                icon={<DeleteIcon />}
+                label="Delete"
+                onClick={() => handleDelete(params.id as unknown as number)}
+              />,
+            ],
+          },
+        ]}
+        onCellEditStart={(params: GridCellEditStartParams) => {
+          if (params.field === "addresses") {
+            console.log("Setting addresses", params.row.addresses);
+            setAddresses(params.row.addresses);
+            setDialogOpen(true);
+          }
+        }}
+      />
+      <AddressEditDialog
+        open={dialogOpen}
+        handleClose={() => setDialogOpen(false)}
+        addresses={addresses}
+        setAddresses={setAddresses}
+      />
+    </>
   );
 }

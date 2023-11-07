@@ -21,6 +21,18 @@ router.put("/patients/:id", loggedIn, async function (req, res) {
   res.json({ success: true });
 });
 
+router.delete("/patients/:id", loggedIn, async function (req, res) {
+  const { id } = req.params;
+  const patient = await Patient.getById(Number(id));
+  if (patient.providerId !== req.user!.id) {
+    return res
+      .status(403)
+      .send("You do not have permission to delete that patient");
+  }
+  await patient.delete();
+  res.json({ success: true });
+});
+
 router.get("/customfields", loggedIn, async function (req, res) {
   const customFields = await CustomField.getByProvider(req.user!.id);
   res.json(customFields);
