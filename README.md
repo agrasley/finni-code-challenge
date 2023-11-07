@@ -25,3 +25,10 @@ $ npm start
 ```
 
 Your browser should automatically open to localhost:3000. Enjoy!
+
+## Logging In
+
+There are three demo users available. `provider1` and `provider2` come
+prepopulated with patients, while `provider3` has no data. `provider1`
+also comes with some sample custom fields prepopulated. Log in with any
+of those 3 usernames and the password `finnihealth`.
