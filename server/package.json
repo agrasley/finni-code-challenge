@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "initDB": "npx tsc && node build/db/init.js",
     "start": "npx tsc && node build/app.js"
   },
   "dependencies": {
