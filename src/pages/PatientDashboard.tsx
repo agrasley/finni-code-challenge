@@ -28,6 +28,7 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import NewPatientDialog from "../components/NewPatientDialog";
 import ConfirmDialog from "../components/ConfirmDialog";
+import NoResultsOverlay from "../components/NoResultsOverlay";
 
 export async function patientDashboardLoader() {
   const [patients, customFields] = await Promise.all([
@@ -215,8 +216,9 @@ export default function PatientDashboard() {
     setRows((rows) => rows.filter((row) => row.id !== id));
   };
 
+  console.log("rows", rows);
   return (
-    <>
+    <div style={{ height: "calc(100vh - 64px)" }}>
       <DataGrid
         apiRef={apiRef}
         getRowHeight={() => "auto"}
@@ -260,9 +262,13 @@ export default function PatientDashboard() {
         }}
         slots={{
           toolbar: EditToolbar,
+          noRowsOverlay: NoResultsOverlay,
+          noResultsOverlay: NoResultsOverlay,
         }}
         slotProps={{
           toolbar: { setDialogOpen: setNewPatientDialogOpen },
+          noResultsOverlay: { children: "You don't have any patients yet!" },
+          noRowsOverlay: { children: "No patients found" },
         }}
       />
       <AddressEditDialog
@@ -336,6 +342,6 @@ export default function PatientDashboard() {
           setConfirmDialogOpen(false);
         }}
       />
-    </>
+    </div>
   );
 }
