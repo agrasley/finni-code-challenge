@@ -127,7 +127,15 @@ export default function AddressEditDialog({
           onClick={() =>
             setAddresses((addresses) => [
               ...addresses,
-              { id: 0, line1: "", city: "", state: "", zip: "", isNew: true },
+              {
+                id: 0,
+                line1: "",
+                line2: "",
+                city: "",
+                state: "",
+                zip: "",
+                isNew: true,
+              },
             ])
           }
         >

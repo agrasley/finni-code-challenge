@@ -6,6 +6,7 @@ import {
   GridColDef,
   GridPreProcessEditCellProps,
   GridRenderCellParams,
+  GridToolbarContainer,
   GridValueGetterParams,
   GridValueSetterParams,
 } from "@mui/x-data-grid";
@@ -20,16 +21,34 @@ import CustomField from "../models/CustomField";
 import EditIcon from "@mui/icons-material/Edit";
 import AddressEditDialog from "../components/AddressEditDialog";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Button from "@mui/material/Button";
+import AddIcon from "@mui/icons-material/Add";
+import NewPatientDialog from "../components/NewPatientDialog";
 
 export async function patientDashboardLoader() {
-  const [serverPatients, customFields] = await Promise.all([
+  const [patients, customFields] = await Promise.all([
     getData("/patients"),
     getData("/customfields"),
   ]);
-  const patients = serverPatients.map(
-    (serverPatient: Patient) => new Patient(serverPatient),
-  );
   return { patients, customFields };
+}
+
+type EditToolbarProps = {
+  setDialogOpen: (open: boolean) => void;
+};
+
+function EditToolbar({ setDialogOpen }: EditToolbarProps) {
+  return (
+    <GridToolbarContainer>
+      <Button
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={() => setDialogOpen(true)}
+      >
+        New Patient
+      </Button>
+    </GridToolbarContainer>
+  );
 }
 
 function DisplayStatus({ value }: GridRenderCellParams) {
@@ -132,7 +151,8 @@ const defaultColumns: GridColDef[] = [
 ];
 
 export default function PatientDashboard() {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newPatientDialogOpen, setNewPatientDialogOpen] = useState(false);
+  const [addressDialogOpen, setAddressDialogOpen] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const {
     patients,
@@ -194,15 +214,29 @@ export default function PatientDashboard() {
           if (params.field === "addresses") {
             console.log("Setting addresses", params.row.addresses);
             setAddresses(params.row.addresses);
-            setDialogOpen(true);
+            setAddressDialogOpen(true);
           }
+        }}
+        slots={{
+          toolbar: EditToolbar,
+        }}
+        slotProps={{
+          toolbar: { setDialogOpen: setNewPatientDialogOpen },
         }}
       />
       <AddressEditDialog
-        open={dialogOpen}
-        handleClose={() => setDialogOpen(false)}
+        open={addressDialogOpen}
+        handleClose={() => setAddressDialogOpen(false)}
         addresses={addresses}
         setAddresses={setAddresses}
+      />
+      <NewPatientDialog
+        customFields={customFields}
+        open={newPatientDialogOpen}
+        handleClose={() => setNewPatientDialogOpen(false)}
+        handleSubmit={() => {
+          setNewPatientDialogOpen(false);
+        }}
       />
     </>
   );
