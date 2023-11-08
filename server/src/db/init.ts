@@ -102,7 +102,7 @@ dbPromise.then(async (db) => {
     FOREIGN KEY(provider) REFERENCES provider(id)
   )`);
   await db.exec(`CREATE TABLE IF NOT EXISTS address (
-    addressId INTEGER PRIMARY KEY,
+    address_id INTEGER PRIMARY KEY,
     line_1 TEXT NOT NULL,
     line_2 TEXT,
     city TEXT NOT NULL,

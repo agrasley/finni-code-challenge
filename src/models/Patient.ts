@@ -8,6 +8,7 @@ export type Address = {
   state: string;
   zip: string;
   isNew?: boolean;
+  patientId: number;
 };
 
 export type CustomFields = Record<number, string>;

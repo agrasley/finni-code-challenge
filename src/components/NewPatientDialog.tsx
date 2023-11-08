@@ -38,7 +38,7 @@ export default function NewPatientDialog({
   const [status, setStatus] = useState<Status>("Inquiry");
   const [customFieldData, setCustomFieldData] = useState<CustomFields>({});
   const [addresses, setAddresses] = useState<Address[]>([
-    { id: 0, line1: "", line2: "", city: "", state: "", zip: "" },
+    { id: 0, line1: "", line2: "", city: "", state: "", zip: "", patientId: 0 },
   ]);
 
   const clearState = () => {
@@ -49,7 +49,15 @@ export default function NewPatientDialog({
     setStatus("Inquiry");
     setCustomFieldData({});
     setAddresses([
-      { id: 0, line1: "", line2: "", city: "", state: "", zip: "" },
+      {
+        id: 0,
+        line1: "",
+        line2: "",
+        city: "",
+        state: "",
+        zip: "",
+        patientId: 0,
+      },
     ]);
   };
 
@@ -282,6 +290,7 @@ export default function NewPatientDialog({
                     city: "",
                     state: "",
                     zip: "",
+                    patientId: 0,
                   },
                 ])
               }

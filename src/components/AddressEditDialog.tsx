@@ -16,10 +16,18 @@ export default function AddressEditDialog({
   open,
   handleClose,
   rowAddresses,
+  patientId,
+  handleSubmit,
 }: {
   open: boolean;
   handleClose: () => void;
   rowAddresses: Address[];
+  patientId: number;
+  handleSubmit: (submitArgs: {
+    deletedIds: number[];
+    addresses: Address[];
+    changedIds: number[];
+  }) => void;
 }) {
   const [addresses, setAddresses] = useState(rowAddresses);
   const [deletedIds, setDeletedIds] = useState<number[]>([]);
@@ -189,6 +197,7 @@ export default function AddressEditDialog({
                 city: "",
                 state: "",
                 zip: "",
+                patientId,
                 isNew: true,
               },
             ])
@@ -201,7 +210,17 @@ export default function AddressEditDialog({
         <Button color="info" onClick={onClose}>
           Cancel
         </Button>
-        <Button variant="contained" onClick={onClose}>
+        <Button
+          variant="contained"
+          onClick={async () => {
+            await handleSubmit({
+              deletedIds,
+              addresses,
+              changedIds,
+            });
+            onClose();
+          }}
+        >
           Submit
         </Button>
       </DialogActions>

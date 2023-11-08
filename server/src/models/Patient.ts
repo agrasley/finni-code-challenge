@@ -1,51 +1,8 @@
 import dbPromise from "../db";
 import { faker } from "@faker-js/faker";
+import Address from "./Address";
 
 export type Status = "Inquiry" | "Onboarding" | "Active" | "Churned";
-
-export class Address {
-  id: number;
-  line1: string;
-  line2?: string;
-  city: string;
-  state: string;
-  zip: string;
-
-  constructor({
-    id,
-    line1,
-    line2,
-    city,
-    state,
-    zip,
-  }: {
-    id: number;
-    line1: string;
-    line2?: string;
-    city: string;
-    state: string;
-    zip: string;
-  }) {
-    this.id = id;
-    this.line1 = line1;
-    this.line2 = line2;
-    this.city = city;
-    this.state = state;
-    this.zip = zip;
-  }
-
-  static mock(): Address {
-    return new Address({
-      id: 0,
-      line1: faker.location.streetAddress(),
-      line2:
-        Math.random() > 0.8 ? faker.location.secondaryAddress() : undefined,
-      city: faker.location.city(),
-      state: faker.location.state(),
-      zip: faker.location.zipCode(),
-    });
-  }
-}
 
 export type CustomFields = Record<number, string | number>;
 
@@ -122,7 +79,7 @@ export default class Patient {
       if (patients[row.id]) {
         patients[row.id].addresses.push(
           new Address({
-            id: row.addressId,
+            id: row.address_id,
             line1: row.line_1,
             line2: row.line_2,
             city: row.city,
@@ -141,7 +98,7 @@ export default class Patient {
           providerId: row.provider,
           addresses: [
             new Address({
-              id: row.addressId,
+              id: row.address_id,
               line1: row.line_1,
               line2: row.line_2,
               city: row.city,

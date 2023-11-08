@@ -9,6 +9,7 @@ import {
   GridToolbarContainer,
   GridValueGetterParams,
   GridValueSetterParams,
+  useGridApiRef,
 } from "@mui/x-data-grid";
 import Patient, { Address } from "../models/Patient";
 import { deleteData, getAge, getData, postData, putData } from "../utils";
@@ -154,11 +155,14 @@ export default function PatientDashboard() {
   const [newPatientDialogOpen, setNewPatientDialogOpen] = useState(false);
   const [addressDialogOpen, setAddressDialogOpen] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [addressPatientId, setAddressPatientId] = useState(0);
+
   const {
     patients,
     customFields,
   }: { patients: Patient[]; customFields: CustomField[] } =
     useLoaderData() as any;
+  const apiRef = useGridApiRef();
   const [rows, setRows] = useState(patients);
   const customColumns = customFields.map((customField) => ({
     field: customField.name,
@@ -185,6 +189,7 @@ export default function PatientDashboard() {
   return (
     <>
       <DataGrid
+        apiRef={apiRef}
         getRowHeight={() => "auto"}
         processRowUpdate={async (updatedRow) => {
           await putData(`/patients/${updatedRow.id}`, updatedRow);
@@ -211,6 +216,7 @@ export default function PatientDashboard() {
         ]}
         onCellEditStart={(params: GridCellEditStartParams) => {
           if (params.field === "addresses") {
+            setAddressPatientId(params.row.id);
             setAddresses(params.row.addresses);
             setAddressDialogOpen(true);
           }
@@ -226,6 +232,46 @@ export default function PatientDashboard() {
         open={addressDialogOpen}
         handleClose={() => setAddressDialogOpen(false)}
         rowAddresses={addresses}
+        patientId={addressPatientId}
+        handleSubmit={async ({ deletedIds, changedIds, addresses }) => {
+          const changedAddresses = addresses.filter((address) =>
+            changedIds.includes(address.id),
+          );
+          const newAddresses = addresses.filter((address) => address.isNew);
+          const promises: Promise<void>[] = [];
+          if (newAddresses.length) {
+            const { ids }: { ids: number[] } = await postData(
+              "/addresses",
+              newAddresses,
+            );
+            ids.forEach((id, idx) => {
+              newAddresses[idx].id = id;
+            });
+          }
+          if (deletedIds.length) {
+            promises.concat(
+              deletedIds.map((id) => deleteData(`/addresses/${id}`)),
+            );
+          }
+          if (changedAddresses.length) {
+            promises.concat(
+              changedAddresses.map((address) =>
+                putData(`/addresses/${address.id}`, address),
+              ),
+            );
+          }
+          await Promise.all(promises);
+          const value = [
+            ...addresses.filter((address) => !address.isNew),
+            ...newAddresses,
+          ];
+          console.log("New value", value);
+          apiRef.current.setEditCellValue({
+            id: addressPatientId,
+            field: "addresses",
+            value,
+          });
+        }}
       />
       <NewPatientDialog
         customFields={customFields}
