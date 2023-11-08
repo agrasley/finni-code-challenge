@@ -7,6 +7,7 @@ export type Address = {
   city: string;
   state: string;
   zip: string;
+  isNew?: boolean;
 };
 
 export type CustomFields = Record<number, string>;

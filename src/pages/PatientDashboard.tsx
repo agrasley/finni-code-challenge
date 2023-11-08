@@ -182,7 +182,6 @@ export default function PatientDashboard() {
     setRows((rows) => rows.filter((row) => row.id !== id));
   };
 
-  console.log("Rendering addresses", addresses);
   return (
     <>
       <DataGrid
@@ -212,7 +211,6 @@ export default function PatientDashboard() {
         ]}
         onCellEditStart={(params: GridCellEditStartParams) => {
           if (params.field === "addresses") {
-            console.log("Setting addresses", params.row.addresses);
             setAddresses(params.row.addresses);
             setAddressDialogOpen(true);
           }
@@ -227,8 +225,7 @@ export default function PatientDashboard() {
       <AddressEditDialog
         open={addressDialogOpen}
         handleClose={() => setAddressDialogOpen(false)}
-        addresses={addresses}
-        setAddresses={setAddresses}
+        rowAddresses={addresses}
       />
       <NewPatientDialog
         customFields={customFields}
