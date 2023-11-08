@@ -267,7 +267,13 @@ export default function PatientDashboard() {
       />
       <AddressEditDialog
         open={addressDialogOpen}
-        handleClose={() => setAddressDialogOpen(false)}
+        handleClose={() => {
+          apiRef.current.stopCellEditMode({
+            id: addressPatientId,
+            field: "addresses",
+          });
+          setAddressDialogOpen(false);
+        }}
         rowAddresses={addresses}
         patientId={addressPatientId}
         handleSubmit={async ({ deletedIds, changedIds, addresses }) => {
@@ -307,10 +313,6 @@ export default function PatientDashboard() {
             id: addressPatientId,
             field: "addresses",
             value,
-          });
-          apiRef.current.stopCellEditMode({
-            id: addressPatientId,
-            field: "addresses",
           });
         }}
       />
