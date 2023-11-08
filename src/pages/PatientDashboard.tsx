@@ -3,12 +3,14 @@ import {
   DataGrid,
   GridActionsCellItem,
   GridCellEditStartParams,
+  GridCellEditStopParams,
   GridColDef,
   GridPreProcessEditCellProps,
   GridRenderCellParams,
   GridToolbarContainer,
   GridValueGetterParams,
   GridValueSetterParams,
+  MuiEvent,
   useGridApiRef,
 } from "@mui/x-data-grid";
 import Patient, { Address } from "../models/Patient";
@@ -188,8 +190,17 @@ export default function PatientDashboard() {
     width: 150,
     type: customField.type,
     editable: true,
-    valueGetter: (params: GridValueGetterParams) =>
-      params.row.customFields[customField.id],
+    valueGetter: (params: GridValueGetterParams) => {
+      const value = params.row.customFields[customField.id];
+      if (
+        customField.type === "date" &&
+        value !== undefined &&
+        value !== null
+      ) {
+        return new Date(value);
+      }
+      return value;
+    },
     valueSetter: (params: GridValueSetterParams) => ({
       ...params.row,
       customFields: {
@@ -242,6 +253,11 @@ export default function PatientDashboard() {
             setAddressDialogOpen(true);
           }
         }}
+        onCellEditStop={(params: GridCellEditStopParams, event: MuiEvent) => {
+          if (params.field === "addresses") {
+            event.defaultMuiPrevented = true;
+          }
+        }}
         slots={{
           toolbar: EditToolbar,
         }}
@@ -291,6 +307,10 @@ export default function PatientDashboard() {
             id: addressPatientId,
             field: "addresses",
             value,
+          });
+          apiRef.current.stopCellEditMode({
+            id: addressPatientId,
+            field: "addresses",
           });
         }}
       />
