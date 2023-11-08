@@ -37,15 +37,12 @@ function createDemoCustomFields() {
     new CustomField({
       id: 0,
       name: "Insurance",
-      isRequired: true,
       providerId: 1,
     }).insert(),
     new CustomField({
       id: 0,
       name: "Number of Visits",
       type: "number",
-      defaultValue: "0",
-      isRequired: true,
       providerId: 1,
     }).insert(),
     new CustomField({
@@ -118,8 +115,6 @@ dbPromise.then(async (db) => {
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,
     type TEXT,
-    is_required INTEGER NOT NULL,
-    default_value TEXT,
     provider INTEGER,
     FOREIGN KEY(provider) REFERENCES provider(id)
   )`);

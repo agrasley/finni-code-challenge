@@ -9,7 +9,6 @@ import PatientDashboard, {
   patientDashboardLoader,
 } from "./pages/PatientDashboard";
 import Root from "./pages/Root";
-import Onboarding from "./pages/Onboarding";
 import Fields, { customFieldsLoader } from "./pages/Fields";
 
 const theme = createTheme({
@@ -30,10 +29,6 @@ const router = createBrowserRouter([
         path: "",
         element: <PatientDashboard />,
         loader: requireLogin(patientDashboardLoader),
-      },
-      {
-        path: "onboarding",
-        element: <Onboarding />,
       },
       {
         path: "fields",

@@ -17,16 +17,7 @@ export default function Root() {
           <Grid container gap={4}>
             <Grid item>
               <Button component={NavLink} sx={{ color: "white" }} to="/">
-                Dashboard
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button
-                component={NavLink}
-                sx={{ color: "white" }}
-                to="/onboarding"
-              >
-                Onboarding
+                Patient Dashboard
               </Button>
             </Grid>
             <Grid item>
