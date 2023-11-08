@@ -25,6 +25,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import NewPatientDialog from "../components/NewPatientDialog";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 export async function patientDashboardLoader() {
   const [patients, customFields] = await Promise.all([
@@ -144,10 +145,25 @@ const defaultColumns: GridColDef[] = [
     headerName: "Addresses",
     width: 200,
     editable: true,
+    filterable: false,
     renderCell: (params: GridRenderCellParams) => (
       <DisplayAddresses {...params} />
     ),
     renderEditCell: () => <EditIcon />,
+  },
+  {
+    field: "city",
+    headerName: "City/Cities",
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) =>
+      params.row.addresses.map((address: Address) => address.city).join(", "),
+  },
+  {
+    field: "zip",
+    headerName: "Zip Code(s)",
+    width: 150,
+    valueGetter: (params: GridValueGetterParams) =>
+      params.row.addresses.map((address: Address) => address.zip).join(", "),
   },
 ];
 
@@ -156,6 +172,8 @@ export default function PatientDashboard() {
   const [addressDialogOpen, setAddressDialogOpen] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [addressPatientId, setAddressPatientId] = useState(0);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(0);
 
   const {
     patients,
@@ -209,7 +227,10 @@ export default function PatientDashboard() {
                 key={1}
                 icon={<DeleteIcon />}
                 label="Delete"
-                onClick={() => handleDelete(params.id as unknown as number)}
+                onClick={() => {
+                  setDeleteId(params.id as unknown as number);
+                  setConfirmDialogOpen(true);
+                }}
               />,
             ],
           },
@@ -280,6 +301,17 @@ export default function PatientDashboard() {
         handleSubmit={async (patient: Patient) => {
           const { id } = await postData("/patients", patient);
           setRows([{ ...patient, id }, ...rows]);
+        }}
+      />
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        handleClose={() => setConfirmDialogOpen(false)}
+        title="Danger"
+        description="Are you sure you want to delete this patient?"
+        handleConfirm={async () => {
+          await handleDelete(deleteId);
+          setDeleteId(0);
+          setConfirmDialogOpen(false);
         }}
       />
     </>

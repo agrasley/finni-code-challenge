@@ -14,6 +14,7 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import NewFieldDialog from "../components/NewFieldDialog";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 export async function customFieldsLoader() {
   const customFields = await getData("/customfields");
@@ -40,6 +41,9 @@ function EditToolbar({ setDialogOpen }: EditToolbarProps) {
 
 export default function Fields() {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState(0);
+
   const { customFields }: { customFields: CustomField[] } =
     useLoaderData() as any;
   const [rows, setRows] = useState(customFields);
@@ -96,7 +100,10 @@ export default function Fields() {
           key={1}
           icon={<DeleteIcon />}
           label="Delete"
-          onClick={() => handleDelete(params.id as unknown as number)}
+          onClick={() => {
+            setDeleteId(params.id as unknown as number);
+            setConfirmDialogOpen(true);
+          }}
         />,
       ],
     },
@@ -122,6 +129,17 @@ export default function Fields() {
         open={dialogOpen}
         handleClose={() => setDialogOpen(false)}
         handleSubmit={handleSubmit}
+      />
+      <ConfirmDialog
+        open={confirmDialogOpen}
+        handleClose={() => setConfirmDialogOpen(false)}
+        title="Danger"
+        description="Are you sure you want to delete this field? All associated data will be lost."
+        handleConfirm={async () => {
+          await handleDelete(deleteId);
+          setDeleteId(0);
+          setConfirmDialogOpen(false);
+        }}
       />
     </>
   );
