@@ -8,7 +8,13 @@ const loggedIn = ensureLoggedIn();
 
 router.get("/patients", loggedIn, async function (req, res) {
   const patients = await Patient.getByProvider(req.user!.id);
-  res.json(patients);
+  res.json(patients.reverse());
+});
+
+router.post("/patients", loggedIn, async function (req, res) {
+  const { id: providerId } = req.user!;
+  const patientResult = await new Patient({ ...req.body, providerId }).insert();
+  res.json({ id: patientResult.lastID });
 });
 
 router.put("/patients/:id", loggedIn, async function (req, res) {

@@ -303,8 +303,8 @@ export default function NewPatientDialog({
         </Button>
         <Button
           variant="contained"
-          onClick={() =>
-            handleSubmit({
+          onClick={async () => {
+            await handleSubmit({
               id: 0,
               firstName,
               middleName,
@@ -314,8 +314,10 @@ export default function NewPatientDialog({
               providerId,
               customFields: customFieldData,
               addresses,
-            })
-          }
+            });
+            clearState();
+            handleClose();
+          }}
         >
           Submit
         </Button>

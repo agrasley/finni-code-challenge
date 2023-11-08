@@ -11,7 +11,7 @@ import {
   GridValueSetterParams,
 } from "@mui/x-data-grid";
 import Patient, { Address } from "../models/Patient";
-import { deleteData, getAge, getData, putData } from "../utils";
+import { deleteData, getAge, getData, postData, putData } from "../utils";
 import { useLoaderData } from "react-router-dom";
 import Chip, { ChipProps } from "@mui/material/Chip";
 import List from "@mui/material/List";
@@ -234,8 +234,9 @@ export default function PatientDashboard() {
         customFields={customFields}
         open={newPatientDialogOpen}
         handleClose={() => setNewPatientDialogOpen(false)}
-        handleSubmit={() => {
-          setNewPatientDialogOpen(false);
+        handleSubmit={async (patient: Patient) => {
+          const { id } = await postData("/patients", patient);
+          setRows([{ ...patient, id }, ...rows]);
         }}
       />
     </>
